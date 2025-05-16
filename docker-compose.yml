@@ -1,0 +1,39 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3080:3080"  # Change this line to map port 3080 to the container's port 3080
+    depends_on:
+      - db
+    environment:
+      PGHOST: db
+      PGUSER: ${PGUSER:-postgres}
+      PGPASSWORD: ${PGPASSWORD:-postgres}
+      PGDATABASE: ${PGDATABASE:-resiotdb}
+      PGPORT: ${PGPORT:-5432}
+    volumes:
+      - .:/app
+    networks:
+      - backend
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-resiotdb}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+
+volumes:
+  pgdata:
+
+networks:
+  backend:
+    driver: bridge

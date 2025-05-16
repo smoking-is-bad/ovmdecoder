@@ -1,0 +1,8 @@
+[ResIOT]
+   │
+   └──▶ POST webhook with payload (JSON or base64) 
+           │
+           ▼
+[Express.js app]
+   └──▶ Decode payload (existing JS)
+   └──▶ Insert decoded result to PostgreSQL

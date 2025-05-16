@@ -1,0 +1,41 @@
+my-decoder-app/
+├── Dockerfile
+├── docker-compose.yml
+├── server.js
+├── package.json
+├── decoder.js
+└── .env
+
+
+======================//=================
+your-app/
+│
+├── decoder/
+│   └── decoder.js            # Your 2000-line decoding logic (exported as module)
+│
+├── db/
+│   └── insertData.js         # Handles PostgreSQL connection and insert logic
+│
+├── server.js                 # Express server to receive WebSocket data
+├── package.json
+├── .env                      # DB credentials and config
+├── Dockerfile
+└── docker-compose.yml
+
+=========================//==========================
+
+ovm-decoder/
+│
+├── decoder/
+│   └── decoder.js            # Your 2000-line decoding logic (exported as module)
+│
+├── db/
+│   └── insertData.js         # Handles PostgreSQL connection and insert logic
+      └──migrateWeeklyToHistorical.js
+├── cron/
+│   └── scheduleMigration.js         # Handles PostgreSQL connection and insert logic
+├── server.js                 # Express server to receive WebSocket data
+├── package.json
+├── .env                      # DB credentials and config
+├── Dockerfile
+└── docker-compose.yml

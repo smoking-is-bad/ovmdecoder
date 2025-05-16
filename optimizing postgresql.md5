@@ -1,0 +1,80 @@
+1. One Table per devEUI
+Pros:
+
+Isolates high-frequency inserts per device
+
+Makes partitioning and maintenance easier per device
+
+Tips:
+
+Use a naming convention like data_dev_abc123
+
+Automatically create tables when new devices appear
+
+You can automate this with PostgreSQL functions or your app logic
+
+📆 2. Recent Data: 1 Week Window
+Store recent data in:
+
+A “hot” table that’s queried frequently
+
+Ideal for dashboards, recent monitoring, alerts, etc.
+
+Strategies:
+
+Index by timestamp
+
+Keep rows sorted by time
+
+Use a weekly table like data_dev_abc123_weekly
+
+
+📦 3. Historical Data: Monthly/Yearly Tables
+Move older data periodically to separate “cold” historical tables.
+
+Strategies:
+
+Use partitioned tables (recommended!)
+
+CREATE TABLE data_dev_abc123 (
+  id SERIAL,
+  timestamp TIMESTAMPTZ NOT NULL,
+  value JSONB
+) PARTITION BY RANGE (timestamp);
+
+Create partitions:
+
+CREATE TABLE data_dev_abc123_2025_04 PARTITION OF data_dev_abc123
+  FOR VALUES FROM ('2025-04-01') TO ('2025-05-01');
+
+4. Automation & Retention
+Use cron + SQL job (or pgAgent) to:
+
+Move data from weekly to historical
+
+Drop very old data (if needed)
+
+Example:
+
+INSERT INTO data_dev_abc123_2025_04
+SELECT * FROM data_dev_abc123_weekly
+WHERE timestamp < NOW() - INTERVAL '7 days';
+
+DELETE FROM data_dev_abc123_weekly
+WHERE timestamp < NOW() - INTERVAL '7 days';
+
+========
+
+🧠 Hybrid Option (Recommended Often)
+Use:
+
+One table per devEUI
+
+With a fPort column
+
+And store payload as JSONB
+
+Add decoder logic inside app layer to decode per fPort
+
+CREATE INDEX idx_dev123_fport_ts ON data_dev_abc123(fport, timestamp);
+SELECT * FROM data_dev_abc123 WHERE fport = 2 AND timestamp > NOW() - INTERVAL '1 day';
